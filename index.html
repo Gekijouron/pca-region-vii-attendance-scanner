@@ -149,79 +149,102 @@ function startCamera() {
   setStatus("Requesting camera access...");
 
   if (!window.Html5Qrcode) {
-
     setStatus(
       "ERROR: QR scanner library did not load.",
       "error"
     );
-
     return;
   }
 
+  Html5Qrcode.getCameras()
+    .then(function(devices) {
 
-  const scanner =
-    new Html5Qrcode("reader");
+      if (!devices || devices.length === 0) {
+        setStatus(
+          "ERROR: No camera found.",
+          "error"
+        );
+        return;
+      }
 
+      console.log("Available cameras:", devices);
 
-  scanner.start(
+      const cameraId = devices[0].id;
 
-    { facingMode: "user" },
+      const scanner = new Html5Qrcode("reader");
 
-    {
-      fps: 15,
-      qrbox: {
-        width: 350,
-        height: 350
-      },
-      disableFlip: false
-    },
+      scanner.start(
+        cameraId,
+        {
+          fps: 15,
+          qrbox: {
+            width: 350,
+            height: 350
+          },
+          aspectRatio: 1.0
+        },
 
+        function(decodedText) {
 
-      scanner.stop().then(function() {
+          console.log(
+            "QR CODE DETECTED:",
+            decodedText
+          );
+
+          scanner.stop().then(function() {
+
+            setStatus(
+              "QR detected. Recording attendance..."
+            );
+
+            sendAttendance(decodedText);
+
+          });
+
+        },
+
+        function(errorMessage) {
+          // Ignore normal scanning errors
+        }
+
+      )
+      .then(function() {
 
         setStatus(
-          "QR detected. Recording attendance..."
+          "✓ CAMERA READY — PRESENT YOUR QR CODE"
         );
 
+      })
+      .catch(function(error) {
 
-        sendAttendance(decodedText);
+        console.error(
+          "CAMERA START ERROR:",
+          error
+        );
+
+        setStatus(
+          "CAMERA ERROR: " + error,
+          "error"
+        );
 
       });
 
-    },
+    })
 
-    function(errorMessage) {
+    .catch(function(error) {
 
-      // Ignore normal scanning errors
+      console.error(
+        "CAMERA ACCESS ERROR:",
+        error
+      );
 
-    }
+      setStatus(
+        "CAMERA ACCESS ERROR: " + error,
+        "error"
+      );
 
-  )
-
-  .then(function() {
-
-    setStatus(
-      "✓ CAMERA READY — PRESENT YOUR QR CODE"
-    );
-
-  })
-
-  .catch(function(error) {
-
-    console.error(
-      "CAMERA ERROR:",
-      error
-    );
-
-    setStatus(
-      "CAMERA ERROR: " + error,
-      "error"
-    );
-
-  });
-
+    });
 }
-
 
 function sendAttendance(employeeId) {
 
