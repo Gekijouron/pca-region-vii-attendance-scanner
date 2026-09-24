@@ -165,16 +165,15 @@ function startCamera() {
 
   scanner.start(
 
-    { facingMode: "user" },
+  { facingMode: "environment" },
 
-    {
-      fps: 10,
-      qrbox: {
-        width: 250,
-        height: 250
-      }
-    },
-
+  {
+    fps: 10,
+    qrbox: {
+      width: 250,
+      height: 250
+    }
+  },
     function(decodedText) {
 
       console.log(
