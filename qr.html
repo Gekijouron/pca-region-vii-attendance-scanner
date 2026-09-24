@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>PCA Region VII QR</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+
+    h1 {
+      font-size: 32px;
+    }
+
+    #qrcode {
+      width: 500px;
+      height: 500px;
+      margin: 30px auto;
+    }
+
+    .id {
+      font-size: 30px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>PCA REGION VII</h1>
+  <h2>EMPLOYEE ATTENDANCE QR</h2>
+
+  <div id="qrcode"></div>
+
+  <div class="id">PCA001</div>
+
+  <script>
+    new QRCode(document.getElementById("qrcode"), {
+      text: "PCA001",
+      width: 500,
+      height: 500,
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  </script>
+
+</body>
+</html>
