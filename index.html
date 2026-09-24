@@ -460,7 +460,7 @@ function displayResult(data) {
 document.getElementById(
   "employeePhoto"
 ).src =
-  "https://drive.google.com/uc?export=view&id=1fZJhuKH7uPwoehLGQ3sqzqBnVj6gwjV8";
+  data.employee.photo || "";
 
 console.log("PHOTO URL:", data.employee.photo);
 
