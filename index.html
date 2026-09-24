@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>PCA Region VII Attendance Scanner</title>
+
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      text-align: center;
+    }
+
+    .header {
+      background: #1f6f43;
+      color: white;
+      padding: 25px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .header p {
+      margin: 8px 0 0;
+      font-size: 18px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    #reader {
+      width: 500px;
+      max-width: 90%;
+      margin: auto;
+      background: white;
+      padding: 15px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    #status {
+      margin: 20px auto;
+      padding: 15px;
+      max-width: 500px;
+      background: white;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    .success {
+      color: #16803c;
+    }
+
+    .error {
+      color: #c62828;
+    }
+
+    #result {
+      display: none;
+      margin: 20px auto;
+      padding: 25px;
+      max-width: 500px;
+      background: white;
+      border-radius: 15px;
+    }
+
+    .employee-name {
+      font-size: 28px;
+      font-weight: bold;
+      margin: 15px 0;
+    }
+
+    .action {
+      font-size: 25px;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <h1>PCA REGION VII</h1>
+    <p>ATTENDANCE SYSTEM</p>
+  </div>
+
+  <div class="container">
+
+    <h2>📷 QR ATTENDANCE SCANNER</h2>
+
+    <p>
+      Please allow camera access when your browser asks.
+    </p>
+
+    <div id="reader"></div>
+
+    <div id="status">
+      Starting camera...
+    </div>
+
+    <div id="result">
+
+      <div id="employeeName" class="employee-name"></div>
+
+      <div id="employeePosition"></div>
+
+      <div id="employeeOffice"></div>
+
+      <div id="attendanceAction" class="action"></div>
+
+      <div id="attendanceTime"></div>
+
+    </div>
+
+  </div>
+
+
+<script>
+
+const APPS_SCRIPT_URL =
+"https://script.google.com/macros/s/AKfycbz8sNUktt5e83OX14I58uuq2WNKtd6cGwLkl90aPazmyWwbwFzW95cthYutEEhy5MC5/exec";
+
+
+function setStatus(message, type = "") {
+
+  const status =
+    document.getElementById("status");
+
+  status.innerText = message;
+
+  status.className = type;
+
+}
+
+
+function startCamera() {
+
+  setStatus("Requesting camera access...");
+
+  if (!window.Html5Qrcode) {
+
+    setStatus(
+      "ERROR: QR scanner library did not load.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const scanner =
+    new Html5Qrcode("reader");
+
+
+  scanner.start(
+
+    { facingMode: "user" },
+
+    {
+      fps: 10,
+      qrbox: {
+        width: 250,
+        height: 250
+      }
+    },
+
+    function(decodedText) {
+
+      console.log(
+        "QR CODE DETECTED:",
+        decodedText
+      );
+
+
+      scanner.stop().then(function() {
+
+        setStatus(
+          "QR detected. Recording attendance..."
+        );
+
+
+        sendAttendance(decodedText);
+
+      });
+
+    },
+
+    function(errorMessage) {
+
+      // Ignore normal scanning errors
+
+    }
+
+  )
+
+  .then(function() {
+
+    setStatus(
+      "✓ CAMERA READY — PRESENT YOUR QR CODE"
+    );
+
+  })
+
+  .catch(function(error) {
+
+    console.error(
+      "CAMERA ERROR:",
+      error
+    );
+
+    setStatus(
+      "CAMERA ERROR: " + error,
+      "error"
+    );
+
+  });
+
+}
+
+
+function sendAttendance(employeeId) {
+
+  const url =
+    APPS_SCRIPT_URL +
+    "?action=attendance&id=" +
+    encodeURIComponent(employeeId);
+
+
+  fetch(url)
+
+    .then(function(response) {
+
+      return response.json();
+
+    })
+
+    .then(function(data) {
+
+      displayResult(data);
+
+    })
+
+    .catch(function(error) {
+
+      setStatus(
+        "Could not connect to attendance system: " +
+        error,
+        "error"
+      );
+
+    });
+
+}
+
+
+function displayResult(data) {
+
+  const result =
+    document.getElementById("result");
+
+
+  result.style.display = "block";
+
+
+  if (!data.success) {
+
+    setStatus(
+      "✗ " + data.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  setStatus(
+    "✓ ATTENDANCE RECORDED",
+    "success"
+  );
+
+
+  document.getElementById(
+    "employeeName"
+  ).innerText =
+    data.employee.name;
+
+
+  document.getElementById(
+    "employeePosition"
+  ).innerText =
+    data.employee.position;
+
+
+  document.getElementById(
+    "employeeOffice"
+  ).innerText =
+    data.employee.office;
+
+
+  document.getElementById(
+    "attendanceAction"
+  ).innerText =
+    data.action;
+
+
+  document.getElementById(
+    "attendanceTime"
+  ).innerText =
+    data.time;
+
+
+  setTimeout(function() {
+
+    result.style.display = "none";
+
+    startCamera();
+
+  }, 4000);
+
+}
+
+
+startCamera();
+
+</script>
+
+</body>
+</html>
