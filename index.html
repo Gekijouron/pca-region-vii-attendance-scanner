@@ -457,11 +457,12 @@ function displayResult(data) {
   // EMPLOYEE INFORMATION
   // ==============================
 
-  document.getElementById(
-    "employeePhoto"
-  ).src =
-    data.employee.photo || "";
+ document.getElementById(
+  "employeePhoto"
+).src =
+  data.employee.photo || "";
 
+console.log("PHOTO URL:", data.employee.photo);
 
   document.getElementById(
     "employeeName"
