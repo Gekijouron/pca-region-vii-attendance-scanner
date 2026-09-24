@@ -40,12 +40,23 @@
   <div class="id">PCA001</div>
 
   <script>
-    new QRCode(document.getElementById("qrcode"), {
-      text: "PCA001",
-      width: 500,
-      height: 500,
-      correctLevel: QRCode.CorrectLevel.H
-    });
+    const params = new URLSearchParams(window.location.search);
+
+const employeeId =
+  params.get("id") || "PCA001";
+
+new QRCode(
+  document.getElementById("qrcode"),
+  {
+    text: employeeId,
+    width: 500,
+    height: 500,
+    correctLevel: QRCode.CorrectLevel.H
+  }
+);
+
+document.querySelector(".id").innerText =
+  employeeId;
   </script>
 
 </body>
