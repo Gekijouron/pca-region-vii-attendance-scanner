@@ -460,7 +460,14 @@ function displayResult(data) {
 document.getElementById(
   "employeePhoto"
 ).src =
-  data.employee.photo || "";
+  "https://gekijouron.github.io/pca-region-vii-attendance-scanner/" +
+  data.employee.id +
+  ".jpg";
+  document.getElementById(
+  "employeePhoto"
+).onerror = function() {
+  this.alt = "Photo not found";
+};
 
 console.log("PHOTO URL:", data.employee.photo);
 
