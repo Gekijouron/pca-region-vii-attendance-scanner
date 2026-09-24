@@ -131,6 +131,13 @@
 const APPS_SCRIPT_URL =
 "https://script.google.com/macros/s/AKfycbz8sNUktt5e83OX14I58uuq2WNKtd6cGwLkl90aPazmyWwbwFzW95cthYutEEhy5MC5/exec";
 
+let scanner = null;
+let processing = false;
+let lastScannedId = "";
+let lastScanTime = 0;
+
+const SCAN_COOLDOWN = 3000;
+
 
 function setStatus(message, type = "") {
 
@@ -138,7 +145,6 @@ function setStatus(message, type = "") {
     document.getElementById("status");
 
   status.innerText = message;
-
   status.className = type;
 
 }
@@ -146,68 +152,66 @@ function setStatus(message, type = "") {
 
 function startCamera() {
 
-  setStatus("Requesting camera access...");
-
-  if (!window.Html5Qrcode) {
-    setStatus(
-      "ERROR: QR scanner library did not load.",
-      "error"
-    );
+  if (scanner) {
     return;
   }
 
+  setStatus("Starting camera...");
+
   Html5Qrcode.getCameras()
+
     .then(function(devices) {
 
       if (!devices || devices.length === 0) {
+
         setStatus(
           "ERROR: No camera found.",
           "error"
         );
+
         return;
       }
 
-      console.log("Available cameras:", devices);
 
       const cameraId = devices[0].id;
 
-      const scanner = new Html5Qrcode("reader");
+      scanner =
+        new Html5Qrcode("reader");
+
 
       scanner.start(
+
         cameraId,
+
         {
-          fps: 15,
+          fps: 30,
+
           qrbox: {
-            width: 350,
-            height: 350
+            width: 400,
+            height: 400
           },
-          aspectRatio: 1.0
+
+          aspectRatio: 1.0,
+
+          disableFlip: false
         },
+
 
         function(decodedText) {
 
-          console.log(
-            "QR CODE DETECTED:",
-            decodedText
-          );
-
-          scanner.stop().then(function() {
-
-            setStatus(
-              "QR detected. Recording attendance..."
-            );
-
-            sendAttendance(decodedText);
-
-          });
+          handleQRCode(decodedText);
 
         },
 
+
         function(errorMessage) {
-          // Ignore normal scanning errors
+
+          // Normal scanning errors are ignored.
+
         }
 
       )
+
       .then(function() {
 
         setStatus(
@@ -215,12 +219,15 @@ function startCamera() {
         );
 
       })
+
       .catch(function(error) {
 
         console.error(
-          "CAMERA START ERROR:",
+          "Camera start error:",
           error
         );
+
+        scanner = null;
 
         setStatus(
           "CAMERA ERROR: " + error,
@@ -234,7 +241,7 @@ function startCamera() {
     .catch(function(error) {
 
       console.error(
-        "CAMERA ACCESS ERROR:",
+        "Camera access error:",
         error
       );
 
@@ -244,7 +251,63 @@ function startCamera() {
       );
 
     });
+
 }
+
+
+function handleQRCode(decodedText) {
+
+  const employeeId =
+    decodedText.trim();
+
+
+  if (!employeeId) {
+    return;
+  }
+
+
+  const now =
+    Date.now();
+
+
+  // Prevent the same QR from being
+  // processed repeatedly.
+
+  if (
+    processing ||
+    (
+      employeeId === lastScannedId &&
+      now - lastScanTime < SCAN_COOLDOWN
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  processing = true;
+
+  lastScannedId = employeeId;
+
+  lastScanTime = now;
+
+
+  console.log(
+    "QR DETECTED:",
+    employeeId
+  );
+
+
+  setStatus(
+    "✓ QR DETECTED — RECORDING..."
+  );
+
+
+  sendAttendance(employeeId);
+
+}
+
 
 function sendAttendance(employeeId) {
 
@@ -270,11 +333,17 @@ function sendAttendance(employeeId) {
 
     .catch(function(error) {
 
+      console.error(
+        "Attendance error:",
+        error
+      );
+
       setStatus(
-        "Could not connect to attendance system: " +
-        error,
+        "CONNECTION ERROR: " + error,
         "error"
       );
+
+      processing = false;
 
     });
 
@@ -297,7 +366,20 @@ function displayResult(data) {
       "error"
     );
 
+    processing = false;
+
+    setTimeout(function() {
+
+      result.style.display = "none";
+
+      setStatus(
+        "✓ CAMERA READY — PRESENT YOUR QR CODE"
+      );
+
+    }, 2500);
+
     return;
+
   }
 
 
@@ -341,9 +423,13 @@ function displayResult(data) {
 
     result.style.display = "none";
 
-    startCamera();
+    processing = false;
 
-  }, 4000);
+    setStatus(
+      "✓ CAMERA READY — PRESENT YOUR QR CODE"
+    );
+
+  }, 2500);
 
 }
 
