@@ -165,21 +165,16 @@ function startCamera() {
 
   scanner.start(
 
-  { facingMode: "environment" },
+    { facingMode: "user" },
 
-  {
-    fps: 10,
-    qrbox: {
-      width: 250,
-      height: 250
-    }
-  },
-    function(decodedText) {
-
-      console.log(
-        "QR CODE DETECTED:",
-        decodedText
-      );
+    {
+      fps: 15,
+      qrbox: {
+        width: 350,
+        height: 350
+      },
+      disableFlip: false
+    },
 
 
       scanner.stop().then(function() {
