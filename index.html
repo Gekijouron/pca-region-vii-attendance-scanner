@@ -396,10 +396,26 @@ function displayResult(data) {
   );
 
 
+  // ==============================
+  // EMPLOYEE INFORMATION
+  // ==============================
+
+  document.getElementById(
+    "employeePhoto"
+  ).src =
+    data.employee.photo || "";
+
+
   document.getElementById(
     "employeeName"
   ).innerText =
     data.employee.name;
+
+
+  document.getElementById(
+    "employeeId"
+  ).innerText =
+    data.employee.id;
 
 
   document.getElementById(
@@ -414,6 +430,10 @@ function displayResult(data) {
     data.employee.office;
 
 
+  // ==============================
+  // ATTENDANCE INFORMATION
+  // ==============================
+
   document.getElementById(
     "attendanceAction"
   ).innerText =
@@ -421,10 +441,26 @@ function displayResult(data) {
 
 
   document.getElementById(
+    "attendanceStatus"
+  ).innerText =
+    data.status;
+
+
+  document.getElementById(
     "attendanceTime"
   ).innerText =
     data.time;
 
+
+  document.getElementById(
+    "attendanceDate"
+  ).innerText =
+    data.date;
+
+
+  // ==============================
+  // RESET AFTER 2.5 SECONDS
+  // ==============================
 
   setTimeout(function() {
 
