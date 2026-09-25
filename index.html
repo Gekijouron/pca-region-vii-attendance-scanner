@@ -4,547 +4,560 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>PCA Region VII Attendance Scanner</title>
+  <title>PCA Region VII Attendance</title>
 
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f7f5;
+      color: #222;
+    }
+
+    /* =========================
+       HEADER
+    ========================= */
+
+    header {
+      background: #1f6f43;
+      color: white;
+      padding: 18px 30px;
       text-align: center;
     }
 
-    .header {
-      background: #1f6f43;
-      color: white;
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    header p {
+      margin: 5px 0 0;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    /* =========================
+       MAIN
+    ========================= */
+
+    .main {
+      max-width: 1100px;
+      margin: 35px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 30px;
+      align-items: start;
+    }
+
+    /* =========================
+       SCANNER
+    ========================= */
+
+    .scanner-card {
+      background: white;
+      border: 1px solid #dfe7e1;
+      border-radius: 12px;
       padding: 25px;
     }
 
-    .header h1 {
-      margin: 0;
-      font-size: 30px;
+    .scanner-card h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      color: #1f6f43;
     }
 
-    .header p {
-      margin: 8px 0 0;
-      font-size: 18px;
-    }
-
-    .container {
-      max-width: 700px;
-      margin: 30px auto;
-      padding: 20px;
+    .scanner-card p {
+      margin: 0 0 20px;
+      color: #666;
+      font-size: 14px;
     }
 
     #reader {
-      width: 500px;
-      max-width: 90%;
-      margin: auto;
+      width: 360px;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    /* =========================
+       LAST SCAN
+    ========================= */
+
+    .last-scan {
       background: white;
-      padding: 15px;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      border: 1px solid #dfe7e1;
+      border-radius: 12px;
+      padding: 22px;
+      min-height: 400px;
     }
 
-    #status {
-      margin: 20px auto;
-      padding: 15px;
-      max-width: 500px;
-      background: white;
-      border-radius: 10px;
-      font-weight: bold;
+    .last-scan h2 {
+      margin: 0 0 20px;
+      color: #1f6f43;
+      font-size: 20px;
+      border-bottom: 1px solid #e5e5e5;
+      padding-bottom: 12px;
     }
 
-    .success {
-      color: #16803c;
+    .employee-photo {
+      width: 130px;
+      height: 130px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: block;
+      margin: 0 auto 18px;
+      border: 1px solid #d8dfda;
+      background: #f0f3f1;
     }
-
-    .error {
-      color: #c62828;
-    }
-
-    #result {
-  display: none;
-  position: fixed;
-  top: 25px;
-  right: 25px;
-  width: 300px;
-  padding: 20px;
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
-  text-align: center;
-  z-index: 9999;
-}
-
-.last-scan-title {
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 15px;
-}
-
-.employee-photo {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 50%;
-  margin-bottom: 12px;
-}
-
-.employee-name {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-#employeeId {
-  font-size: 14px;
-  margin-bottom: 8px;
-}
-
-#employeePosition,
-#employeeOffice {
-  font-size: 14px;
-  margin-bottom: 4px;
-}
-
-.action {
-  font-size: 18px;
-  font-weight: bold;
-  margin-top: 12px;
-}
-
-#attendanceStatus {
-  font-weight: bold;
-  margin-top: 5px;
-}
-
-#attendanceTime {
-  font-size: 16px;
-  margin-top: 8px;
-}
-
-#attendanceDate {
-  font-size: 14px;
-  margin-top: 3px;
-}
 
     .employee-name {
-      font-size: 28px;
+      text-align: center;
+      font-size: 21px;
       font-weight: bold;
-      margin: 15px 0;
+      margin-bottom: 7px;
+    }
+
+    .employee-id {
+      text-align: center;
+      color: #1f6f43;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .employee-info {
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .employee-info div {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid #eeeeee;
+      padding: 6px 0;
+      gap: 15px;
+    }
+
+    .label {
+      color: #777;
+    }
+
+    .value {
+      text-align: right;
+      font-weight: 500;
+    }
+
+    /* =========================
+       ATTENDANCE RESULT
+    ========================= */
+
+    .attendance-result {
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid #e5e5e5;
+      text-align: center;
     }
 
     .action {
-      font-size: 25px;
+      font-size: 18px;
       font-weight: bold;
-      margin-top: 15px;
+      color: #1f6f43;
+      margin-bottom: 7px;
+    }
+
+    .status {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .message {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #777;
+    }
+
+    /* =========================
+       EMPTY STATE
+    ========================= */
+
+    .empty {
+      text-align: center;
+      color: #999;
+      padding: 70px 10px;
+      font-size: 14px;
+    }
+
+    /* =========================
+       SUCCESS / ERROR
+    ========================= */
+
+    .success {
+      color: #1f6f43;
+    }
+
+    .error {
+      color: #c0392b;
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 850px) {
+
+      .main {
+        grid-template-columns: 1fr;
+        max-width: 600px;
+      }
+
+      .last-scan {
+        min-height: auto;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <div class="header">
-    <h1>PCA REGION VII</h1>
-    <p>ATTENDANCE SYSTEM</p>
-  </div>
+  <header>
+    <h1>PCA Region VII Attendance System</h1>
+    <p>Assessment Monitoring Service</p>
+  </header>
 
-  <div class="container">
 
-    <h2>📷 QR ATTENDANCE SCANNER</h2>
+  <div class="main">
 
-    <p>
-      Please allow camera access when your browser asks.
-    </p>
+    <!-- =========================
+         SCANNER
+    ========================= -->
 
-    <div id="reader"></div>
+    <div class="scanner-card">
 
-    <div id="status">
-      Starting camera...
+      <h2>QR Attendance Scanner</h2>
+
+      <p>
+        Scan the employee QR code to record attendance.
+      </p>
+
+      <div id="reader"></div>
+
     </div>
 
-   <div id="result">
 
-  <div class="last-scan-title">LAST SCAN</div>
+    <!-- =========================
+         LAST SCAN
+    ========================= -->
 
-  <img id="employeePhoto" class="employee-photo" src="" alt="Employee Photo">
+    <div class="last-scan">
 
-  <div id="employeeName" class="employee-name"></div>
+      <h2>Last Scan</h2>
 
-  <div id="employeeId"></div>
+      <div id="emptyState" class="empty">
+        No attendance scan yet.
+      </div>
 
-  <div id="employeePosition"></div>
+      <div id="employeeInfo" style="display:none;">
 
-  <div id="employeeOffice"></div>
+        <img
+          id="employeePhoto"
+          class="employee-photo"
+          src=""
+          alt="Employee Photo"
+        >
 
-  <div id="attendanceAction" class="action"></div>
+        <div id="employeeName" class="employee-name"></div>
 
-  <div id="attendanceStatus"></div>
+        <div id="employeeId" class="employee-id"></div>
 
-  <div id="attendanceTime"></div>
+        <div class="employee-info">
 
-  <div id="attendanceDate"></div>
+          <div>
+            <span class="label">Position</span>
+            <span id="employeePosition" class="value"></span>
+          </div>
 
-</div>
+          <div>
+            <span class="label">Office</span>
+            <span id="employeeOffice" class="value"></span>
+          </div>
 
-<script>
-
-const APPS_SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbz8sNUktt5e83OX14I58uuq2WNKtd6cGwLkl90aPazmyWwbwFzW95cthYutEEhy5MC5/exec";
-
-let scanner = null;
-let processing = false;
-let lastScannedId = "";
-let lastScanTime = 0;
-
-const SCAN_COOLDOWN = 3000;
-
-
-function setStatus(message, type = "") {
-
-  const status =
-    document.getElementById("status");
-
-  status.innerText = message;
-  status.className = type;
-
-}
+        </div>
 
 
-function startCamera() {
+        <div class="attendance-result">
 
-  if (scanner) {
-    return;
-  }
+          <div id="attendanceAction" class="action"></div>
 
-  setStatus("Starting camera...");
+          <div id="attendanceStatus" class="status"></div>
 
-  Html5Qrcode.getCameras()
+          <div id="attendanceMessage" class="message"></div>
 
-    .then(function(devices) {
+        </div>
 
-      if (!devices || devices.length === 0) {
+      </div>
 
-        setStatus(
-          "ERROR: No camera found.",
-          "error"
-        );
+    </div>
+
+  </div>
+
+
+  <script>
+
+    /* =========================
+       GOOGLE APPS SCRIPT
+    ========================= */
+
+    const SCRIPT_URL =
+      "https://script.google.com/macros/s/AKfycbz8sNUktt5e83OX14I58uuq2WNKtd6cGwLkl90aPazmyWwbwFzW95cthYutEEhy5MC5/exec";
+
+
+    /* =========================
+       SHOW RESULT
+    ========================= */
+
+    function displayResult(data) {
+
+      const emptyState =
+        document.getElementById("emptyState");
+
+      const employeeInfo =
+        document.getElementById("employeeInfo");
+
+      const employeePhoto =
+        document.getElementById("employeePhoto");
+
+      const employeeName =
+        document.getElementById("employeeName");
+
+      const employeeId =
+        document.getElementById("employeeId");
+
+      const employeePosition =
+        document.getElementById("employeePosition");
+
+      const employeeOffice =
+        document.getElementById("employeeOffice");
+
+      const attendanceAction =
+        document.getElementById("attendanceAction");
+
+      const attendanceStatus =
+        document.getElementById("attendanceStatus");
+
+      const attendanceMessage =
+        document.getElementById("attendanceMessage");
+
+
+      /* =========================
+         NO EMPLOYEE INFORMATION
+      ========================= */
+
+      if (!data.employee) {
+
+        emptyState.style.display = "block";
+        employeeInfo.style.display = "none";
+
+        emptyState.innerHTML =
+          data.message || "Scan rejected.";
 
         return;
       }
 
 
-      const cameraId = devices[0].id;
+      /* =========================
+         SHOW EMPLOYEE
+      ========================= */
 
-      scanner =
-        new Html5Qrcode("reader");
+      emptyState.style.display = "none";
+      employeeInfo.style.display = "block";
 
 
-      scanner.start(
+      employeeName.textContent =
+        data.employee.name || "Unknown Employee";
 
-        cameraId,
+      employeeId.textContent =
+        data.employee.id || "";
 
+      employeePosition.textContent =
+        data.employee.position || "N/A";
+
+      employeeOffice.textContent =
+        data.employee.office || "N/A";
+
+
+      /* =========================
+         EMPLOYEE PHOTO
+      ========================= */
+
+      employeePhoto.src =
+        "https://gekijouron.github.io/pca-region-vii-attendance-scanner/" +
+        data.employee.id +
+        ".jpg";
+
+
+      employeePhoto.onerror = function() {
+
+        this.src =
+          "data:image/svg+xml;charset=UTF-8," +
+          encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 width="200"
+                 height="200"
+                 viewBox="0 0 200 200">
+
+              <rect width="200" height="200" fill="#f0f3f1"/>
+
+              <text x="100"
+                    y="105"
+                    text-anchor="middle"
+                    font-family="Arial"
+                    font-size="16"
+                    fill="#777">
+                No Photo
+              </text>
+
+            </svg>
+          `);
+
+      };
+
+
+      /* =========================
+         ATTENDANCE RESULT
+      ========================= */
+
+      if (data.success) {
+
+        attendanceAction.textContent =
+          data.action || "ATTENDANCE RECORDED";
+
+        attendanceAction.className =
+          "action success";
+
+        attendanceStatus.textContent =
+          data.status || "";
+
+        attendanceStatus.className =
+          "status success";
+
+        attendanceMessage.textContent =
+          (data.date || "") +
+          " • " +
+          (data.time || "");
+
+      } else {
+
+        attendanceAction.textContent =
+          "SCAN REJECTED";
+
+        attendanceAction.className =
+          "action error";
+
+        attendanceStatus.textContent =
+          "NOT RECORDED";
+
+        attendanceStatus.className =
+          "status error";
+
+        attendanceMessage.textContent =
+          data.message || "Attendance was not recorded.";
+
+      }
+
+    }
+
+
+    /* =========================
+       PROCESS QR CODE
+    ========================= */
+
+    async function onScanSuccess(decodedText) {
+
+      console.log("QR CODE:", decodedText);
+
+      try {
+
+        const url =
+          SCRIPT_URL +
+          "?action=attendance&id=" +
+          encodeURIComponent(decodedText.trim());
+
+
+        const response =
+          await fetch(url);
+
+
+        const data =
+          await response.json();
+
+
+        console.log("SERVER RESPONSE:", data);
+
+
+        displayResult(data);
+
+      }
+
+      catch (error) {
+
+        console.error(error);
+
+        document.getElementById("emptyState").style.display =
+          "block";
+
+        document.getElementById("employeeInfo").style.display =
+          "none";
+
+        document.getElementById("emptyState").textContent =
+          "Unable to connect to attendance system.";
+
+      }
+
+    }
+
+
+    /* =========================
+       QR SCANNER
+    ========================= */
+
+    function onScanFailure(error) {
+      // Ignore normal scanning errors.
+    }
+
+
+    const scanner =
+      new Html5QrcodeScanner(
+        "reader",
         {
-          fps: 30,
+          fps: 15,
 
           qrbox: {
-            width: 400,
-            height: 400
+            width: 280,
+            height: 280
           },
 
           aspectRatio: 1.0,
 
-          disableFlip: false
+          rememberLastUsedCamera: true,
+
+          showTorchButtonIfSupported: true
         },
-
-
-        function(decodedText) {
-
-          handleQRCode(decodedText);
-
-        },
-
-
-        function(errorMessage) {
-
-          // Normal scanning errors are ignored.
-
-        }
-
-      )
-
-      .then(function() {
-
-        setStatus(
-          "✓ CAMERA READY — PRESENT YOUR QR CODE"
-        );
-
-      })
-
-      .catch(function(error) {
-
-        console.error(
-          "Camera start error:",
-          error
-        );
-
-        scanner = null;
-
-        setStatus(
-          "CAMERA ERROR: " + error,
-          "error"
-        );
-
-      });
-
-    })
-
-    .catch(function(error) {
-
-      console.error(
-        "Camera access error:",
-        error
+        false
       );
 
-      setStatus(
-        "CAMERA ACCESS ERROR: " + error,
-        "error"
-      );
 
-    });
-
-}
-
-
-function handleQRCode(decodedText) {
-
-  const employeeId =
-    decodedText.trim();
-
-
-  if (!employeeId) {
-    return;
-  }
-
-
-  const now =
-    Date.now();
-
-
-  // Prevent the same QR from being
-  // processed repeatedly.
-
-  if (
-    processing ||
-    (
-      employeeId === lastScannedId &&
-      now - lastScanTime < SCAN_COOLDOWN
-    )
-  ) {
-
-    return;
-
-  }
-
-
-  processing = true;
-
-  lastScannedId = employeeId;
-
-  lastScanTime = now;
-
-
-  console.log(
-    "QR DETECTED:",
-    employeeId
-  );
-
-
-  setStatus(
-    "✓ QR DETECTED — RECORDING..."
-  );
-
-
-  sendAttendance(employeeId);
-
-}
-
-
-function sendAttendance(employeeId) {
-
-  const url =
-    APPS_SCRIPT_URL +
-    "?action=attendance&id=" +
-    encodeURIComponent(employeeId);
-
-
-  fetch(url)
-
-    .then(function(response) {
-
-      return response.json();
-
-    })
-
-    .then(function(data) {
-
-      displayResult(data);
-
-    })
-
-    .catch(function(error) {
-
-      console.error(
-        "Attendance error:",
-        error
-      );
-
-      setStatus(
-        "CONNECTION ERROR: " + error,
-        "error"
-      );
-
-      processing = false;
-
-    });
-
-}
-
-
-function displayResult(data) {
-
-  const result =
-    document.getElementById("result");
-
-
-  result.style.display = "block";
-
-
-  if (!data.success) {
-
-    setStatus(
-      "✗ " + data.message,
-      "error"
+    scanner.render(
+      onScanSuccess,
+      onScanFailure
     );
 
-    processing = false;
-
-    setTimeout(function() {
-
-      result.style.display = "none";
-
-      setStatus(
-        "✓ CAMERA READY — PRESENT YOUR QR CODE"
-      );
-
-    }, 2500);
-
-    return;
-
-  }
-
-
-  setStatus(
-    "✓ ATTENDANCE RECORDED",
-    "success"
-  );
-
-
-  // ==============================
-  // EMPLOYEE INFORMATION
-  // ==============================
-
-document.getElementById(
-  "employeePhoto"
-).src =
-  "https://gekijouron.github.io/pca-region-vii-attendance-scanner/" +
-  data.employee.id +
-  ".jpg";
-  document.getElementById(
-  "employeePhoto"
-).onerror = function() {
-  this.alt = "Photo not found";
-};
-
-console.log("PHOTO URL:", data.employee.photo);
-
-  document.getElementById(
-    "employeeName"
-  ).innerText =
-    data.employee.name;
-
-
-  document.getElementById(
-    "employeeId"
-  ).innerText =
-    data.employee.id;
-
-
-  document.getElementById(
-    "employeePosition"
-  ).innerText =
-    data.employee.position;
-
-
-  document.getElementById(
-    "employeeOffice"
-  ).innerText =
-    data.employee.office;
-
-
-  // ==============================
-  // ATTENDANCE INFORMATION
-  // ==============================
-
-  document.getElementById(
-    "attendanceAction"
-  ).innerText =
-    data.action;
-
-
-  document.getElementById(
-    "attendanceStatus"
-  ).innerText =
-    data.status;
-
-
-  document.getElementById(
-    "attendanceTime"
-  ).innerText =
-    data.time;
-
-
-  document.getElementById(
-    "attendanceDate"
-  ).innerText =
-    data.date;
-
-
-  // ==============================
-  // RESET AFTER 2.5 SECONDS
-  // ==============================
-
-  setTimeout(function() {
-
-    result.style.display = "none";
-
-    processing = false;
-
-    setStatus(
-      "✓ CAMERA READY — PRESENT YOUR QR CODE"
-    );
-
-  }, 2500);
-
-}
-
-
-startCamera();
-
-</script>
+  </script>
 
 </body>
 </html>
